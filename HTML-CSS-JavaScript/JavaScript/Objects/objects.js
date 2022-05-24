@@ -265,15 +265,97 @@ console.log(p1.nacionalidade);
 --> Maneira de métodos se comportarem de maneiras diferentes em funções construtoras
 ou classes;
 
+Ex: comportamento de um método diferente nas instâncias da função construtora (molde);
 
+// Superclass
+function Conta(agencia, conta, saldo) {
+    this.agencia = agencia;
+    this.conta = conta;
+    this.saldo = saldo;
+}
 
+// Adição de métodos através do prototype da função construtora
 
+Conta.prototype.sacar = function(valor) {
+    if (valor > this.saldo) {
+        console.log(`Saldo insuficiente: ${this.saldo}`);
+        return;
+    }
+    this.saldo -= valor;
+    this.verSaldo();
+};
+Conta.prototype.depositar = function(valor) {
+    this.saldo += valor;
+    this.verSaldo();
+}
+Conta.prototype.verSaldo = function() {
+    console.log(`Ag./c: ${this.agencia}/${this.conta} | ` +
+    `Saldo: R$${this.saldo.toFixed(2)}`)
+}
 
+// Teste: a cada declaração do método, o valor do saldo de altera:
 
+const conta1 = new Conta(6342, 1291267, 500);
+conta1.depositar(50);
+conta1.depositar(20);
+conta1.sacar(600);
 
+// Agora vem o polimorfismo: o método 'sacar' irá apresentar um comportamento diferente
+// na função construtora 'ContaCorrente', enquanto a função 'ContaPoupanca' irá repetir
+// o comportamento da 'Conta' genérica
 
+function ContaCorrente(agencia, conta, saldo, limite) {
 
+    // Essa parte consiste na herança, onde através do método call(), essa função construtora irá 'copiar'
+    // as chaves da 'superclass' (nesse caso), assim como demais códigos; É importante destacar que outras
+    // chaves e propriedades podem ser adicionadas após o processo de herança;
 
+    Conta.call(this, agencia, conta, saldo),
+    this.limite = limite;  
+}
+
+// É preciso fazer também um link entre os prototypes, dessa nova função e da 'superclass', através do
+// Object.create()
+
+    ContaCorrente.prototype = Object.create(Conta.prototype);
+
+// Se apenas isso for feito, o construtor do 'ContaCorrente' será o mesmo do 'Conta', então é preciso
+// defini-lo;
+
+    ContaCorrente.prototype.constructor = ContaCorrente;
+
+// Agora o método sacar() irá apresentar um comportamento diferente, já que possui um limite;
+
+    Conta.prototype.sacar = function(valor) {
+    if (valor > (this.saldo + this.limite)) {
+        console.log(`Saldo insuficiente: ${this.saldo}`);
+        return;
+    }
+    this.saldo -= valor;
+    this.verSaldo();
+};
+
+// Teste:
+
+const contaCorrente1 = new ContaCorrente (6342, 129267, 0, 100);
+contaCorrente1.sacar(90);
+contaCorrente1.sacar(100);
+
+// A function ContaPoupanca repete o processo da 'superclass' Conta, com o mesmo método que a
+// function ContaCorrente, porém com um comportamento diferente, já que não assume um saldo negativo;
+
+function ContaPoupanca(agencia, conta, saldo) {
+    Conta.call(this, agencia, conta, saldo)
+}
+
+ContaPoupanca.prototype = Object.create(Conta.prototype);
+ContaPoupanca.prototype.constructor = ContaPoupanca
+
+// Teste
+
+const poupanca = new ContaPoupanca(6342, 129267, 5);
+poupanca.depositar(10);
+poupanca.sacar(20);
 
 
 
