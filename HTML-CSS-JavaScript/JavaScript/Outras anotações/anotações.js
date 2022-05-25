@@ -63,3 +63,18 @@ Sintaxe:
 
 
 */
+
+class DispositivoEletronico {
+    constructor(nome) {
+        this.nome = nome;
+    }
+
+    static ligar(nome) {
+        console.log(`O ${nome} está ligado`);
+    }
+}
+
+const d1 = new DispositivoEletronico('Celular')
+DispositivoEletronico.ligar('Celular');
+
+// d1.ligar() // Vai dar um erro;

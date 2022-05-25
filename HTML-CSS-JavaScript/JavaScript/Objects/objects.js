@@ -310,17 +310,20 @@ function ContaCorrente(agencia, conta, saldo, limite) {
     // as chaves da 'superclass' (nesse caso), assim como demais códigos; É importante destacar que outras
     // chaves e propriedades podem ser adicionadas após o processo de herança;
 
-    Conta.call(this, agencia, conta, saldo),
+    Conta.call(this, agencia, conta, saldo), 
+    // O 'this' é o objeto criado por ContaCorrente e que irá receber os parâmetros da 'superclass' Conta;
+
     this.limite = limite;  
 }
 
 // É preciso fazer também um link entre os prototypes, dessa nova função e da 'superclass', através do
-// Object.create()
+// Object.create(), para que os métodos (adicionados fora da função, através do prototype), possam ser
+// sincronizados;
 
     ContaCorrente.prototype = Object.create(Conta.prototype);
 
-// Se apenas isso for feito, o construtor do 'ContaCorrente' será o mesmo do 'Conta', então é preciso
-// defini-lo;
+// A partir da realização da herança, o construtor do 'ContaCorrente' será o mesmo do 'Conta', então 
+// é preciso redefini-lo para ser novamente o construtor da 'ContaCorrente';
 
     ContaCorrente.prototype.constructor = ContaCorrente;
 
@@ -357,14 +360,98 @@ const poupanca = new ContaPoupanca(6342, 129267, 5);
 poupanca.depositar(10);
 poupanca.sacar(20);
 
+-----------------------------------------------------------------------------------------------------
 
+9. Factory functions + prototypes
 
+--> Trabalhando com herança e prototype de duas formas: dentro e fora da factory function;
 
+// Tendo em mente uma factory function clássica:
 
+function criaPessoa(nome, sobrenome) {
+    return {
+        nome,
+        sobrenome,
+        falar() {
+            console.log(`${this.nome} está falando`);
+        }
+    }
+}
 
+Ex1: Dentro:
 
+function criaPessoa(nome, sobrenome) {
 
+// Aqui será criado um prototype para ser utilizado em todas as instâncias da factory function;
+// Nesse caso, o prototype irá armazenar o método utilizado acima.
 
+    const pessoaPrototype = {
+        falar() {
+            console.log(`${this.nome} está falando`);
+        }
+    }
+
+// A linkagem dos prototypes também ocorre dentro, dessa vez adicionando o resto do código, como
+// property descriptors;
+
+    return Object.create(pessoaPrototype, {
+        nome: { value: nome },    // Nesse caso, só utilizou 'value' como característica da propriedade;
+        sobrenome: {value: sobrenome}
+    });
+}
+
+// Teste:
+
+const p1 = criaPessoa('Alcides', 'Neto');
+p1.fala();
+const p2 = criaPessoa('Maria', 'Joana');
+p2.fala();
+
+Ex2: Fora:
+
+// Os métodos são desacoplados e podem ser utilizados em qualquer objeto e não apenas os instanciados
+// pela factory function;
+
+const falar {
+    falar() {
+        console.log(`${this.nome} está falando`);
+    }
+}
+
+// Declarando esse método no prototype através do spread operator (também pode-se utilizar Object.assign());
+
+const pessoaPrototype = { ...falar };
+
+// E agora a função apenas com o 'pessoaPrototype' inserido no Object.create();
+
+function criaPessoa(nome, sobrenome) {
+    return Object.create(pessoaPrototype, {
+        nome: { value: nome },
+        sobrenome: {value: sobrenome}
+    });
+}
+
+--------------------------------------------------------------------------------------------------
+
+10. Map();
+
+--> O Map() é bastante similar a um Objeto, entretanto, para certas ocasiões ele é
+    preferível de ser utilizado dada as suas diferenças;
+
+--> Um Map() pode ser diretamente iterável (através do 'for of'), enquanto um Objeto
+    usa Object.keys, ou 'for in' para enumerar suas propriedades;
+
+--> As chaves do Map() são ordenadas a partir de sua inserção (pode ser '2', '3', '1').
+    Já o Objeto não possui uma ordenação boa, no minímo, sendo complexa;
+    Isso é importante para casos de algoritmo que necessitam da ordem através da inserção,
+    não respeitando a ordem crescente de números, por exemplo;
+
+--> O número de itens dentro de um Map() é retornado pela propriedade 'size'; Por fim,
+    as chaves do Map() podem ser de quaisquer tipos, enquanto as do Objeto devem ser
+    strings ou símbolos.
+
+--> Para criar um Map(), se utiliza new Map(), para determinar um valor, se utiliza o
+    set() e para pegar um valor se utiliza o get(), entre outros métodos;
 
 
 
